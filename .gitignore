@@ -1,1 +1,75 @@
-venv
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# IDEs & Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# FastAPI / Uvicorn
+# =========================
+*.pid
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Model & AI artifacts
+# =========================
+models/
+*.bin
+*.pt
+*.gguf
+*.onnx
+*.safetensors
+
+# Ollama local cache (optional)
+~/.ollama
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+*.tmp
