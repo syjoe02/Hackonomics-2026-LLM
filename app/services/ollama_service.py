@@ -1,29 +1,46 @@
+import json
 import requests
-from app.core.config import OLLAMA_URL
+from typing import Generator
 
-def ask_llm(question: str, news: list, country_code: str):
-    prompt = f"""
-    You are a financial analyst.
+from app.core.settings import settings
 
-    Country: {country_code}
+OLLAMA_URL = settings.OLLAMA_URL
+MODEL_NAME = settings.OLLAMA_MODEL
 
-    Business news:
-    {news}
+_session = requests.Session()
 
-    Question:
-    {question}
+def stream_llama(prompt: str) -> Generator[str, None, None]:
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": prompt,
+        "stream": True,
+    }
 
-    Answer clearly and concisely.
-    """
+    try:
+        with _session.post(
+            OLLAMA_URL,
+            json=payload,
+            stream=True,
+            timeout=300,
+        ) as response:
+            response.raise_for_status()
 
-    response = requests.post(
-        f"{OLLAMA_URL}/api/generate",
-        json={
-            "model": "llama3",
-            "prompt": prompt,
-            "stream": False,
-        },
-        timeout=60,
-    )
+            for line in response.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
 
-    return response.json()["response"]
+                try:
+                    data = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+                token = data.get("response")
+                if token is not None:
+                    # 🚨 DO NOT strip() – whitespace is meaningful
+                    yield token
+
+    except requests.Timeout as exc:
+        raise RuntimeError("Ollama request timed out") from exc
+
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Ollama connection failed: {exc}") from exc

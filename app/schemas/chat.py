@@ -7,5 +7,7 @@ class NewsItem(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str
-    country_code: str
     news: List[NewsItem]
+
+class ChatResponse(BaseModel):
+    answer: str
