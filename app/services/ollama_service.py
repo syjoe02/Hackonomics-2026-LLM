@@ -10,10 +10,18 @@ MODEL_NAME = settings.OLLAMA_MODEL
 _session = requests.Session()
 
 def stream_llama(prompt: str) -> Generator[str, None, None]:
+    
     payload = {
         "model": MODEL_NAME,
         "prompt": prompt,
         "stream": True,
+        "options": {
+            "num_predict": 80,
+            "temperature": 0.2,
+            "top_p": 0.9,
+            "num_ctx": 1024,
+            "num_thread": 4
+        },
     }
 
     try:
@@ -21,7 +29,7 @@ def stream_llama(prompt: str) -> Generator[str, None, None]:
             OLLAMA_URL,
             json=payload,
             stream=True,
-            timeout=300,
+            timeout=120,
         ) as response:
             response.raise_for_status()
 
@@ -35,9 +43,11 @@ def stream_llama(prompt: str) -> Generator[str, None, None]:
                     continue
 
                 token = data.get("response")
-                if token is not None:
-                    # 🚨 DO NOT strip() – whitespace is meaningful
+                if token:
                     yield token
+
+                if data.get("done"):
+                    break
 
     except requests.Timeout as exc:
         raise RuntimeError("Ollama request timed out") from exc

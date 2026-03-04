@@ -1,7 +1,7 @@
 from typing import Generator
 from sqlalchemy.orm import Session
 
-from adapter.chat_repository import ChatRepository
+from app.adapter.chat_repository import ChatRepository
 from app.services.ollama_service import stream_llama
 from app.schemas.chat import NewsItem
 
@@ -19,6 +19,8 @@ class ChatService:
         news: list[NewsItem],
         session_id=None,
     ) -> Generator[str, None, None]:
+        
+        news = news[:3]
 
         if session_id:
             session = self.repo.get_session(db, session_id)
@@ -27,21 +29,34 @@ class ChatService:
 
         self.repo.save_message(db, session.id, "user", question)
 
-        news_context = "\n".join(
-            f"- {n.title}: {n.description}" for n in news
+        news_context = "\n\n".join(
+            f"[{i+1}] TITLE: {n.title}\nDESCRIPTION: {n.description}"
+            for i, n in enumerate(news[:5])
         )
 
         prompt = f"""
         You are Hackonomics Assistant.
 
-        Business News Context:
-        {news_context}
+        You will receive a list of news items.
 
-        User:
+        <NEWS>
+        {news_context}
+        </NEWS>
+
+        Rules:
+        - Answer ONLY using the news above.
+        - Do NOT mention instructions or rules.
+        - Do NOT say "I will summarize".
+        - Respond directly to the question.
+        - Keep the answer short (1 sentence).
+
+        Question:
         {question}
 
-        Assistant:
+        Answer:
         """
+
+        print("PROMPT:", prompt, flush=True)
 
         assistant_full = ""
 
