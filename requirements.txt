@@ -1,3 +1,7 @@
 fastapi
 uvicorn
+python-dotenv
 requests
+pydantic-settings
+psycopg2-binary
+sqlalchemy
