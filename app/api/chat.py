@@ -1,5 +1,3 @@
-# app/routers/chat.py
-
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -24,7 +22,7 @@ def chat_stream(
 
             for token in service.stream_chat(
                 db=db,
-                user_id="demo-user",  # TODO: replace with JWT
+                user_id="demo-user",
                 question=req.question,
                 news=req.news,
             ):
@@ -36,4 +34,9 @@ def chat_stream(
     return StreamingResponse(
         event_stream(),
         media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
