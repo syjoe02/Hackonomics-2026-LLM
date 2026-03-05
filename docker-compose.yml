@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15
-    container_name: myeconocoach-postgres
+    container_name: myeconocoach-llm-db
     environment:
       POSTGRES_DB: llm_db
       POSTGRES_USER: postgres
@@ -11,7 +11,9 @@ services:
     restart: unless-stopped
 
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.llama
     container_name: myeconocoach-ollama
     ports:
       - "11434:11434"
@@ -31,16 +33,11 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:password@postgres:5432/llm_db
       OLLAMA_URL: http://ollama:11434/api/generate
-      OLLAMA_MODEL: llama3
+      OLLAMA_MODEL: llama3:8b
     depends_on:
       - postgres
       - ollama
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
   ollama_data:

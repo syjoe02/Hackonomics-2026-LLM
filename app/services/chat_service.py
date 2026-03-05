@@ -29,31 +29,18 @@ class ChatService:
 
         self.repo.save_message(db, session.id, "user", question)
 
-        news_context = "\n\n".join(
-            f"[{i+1}] TITLE: {n.title}\nDESCRIPTION: {n.description}"
-            for i, n in enumerate(news[:5])
+        news_context = "\n".join(
+            f"[{i+1}] {n.title}"
+            for i, n in enumerate(news)
         )
 
         prompt = f"""
-        You are Hackonomics Assistant.
-
         You will receive a list of news items.
 
-        <NEWS>
+        News:
         {news_context}
-        </NEWS>
-
-        Rules:
-        - Answer ONLY using the news above.
-        - Do NOT mention instructions or rules.
-        - Do NOT say "I will summarize".
-        - Respond directly to the question.
-        - Keep the answer short (1 sentence).
-
-        Question:
-        {question}
-
-        Answer:
+        User question: {question}
+        Answer in ONE short sentence using the news above.
         """
 
         print("PROMPT:", prompt, flush=True)

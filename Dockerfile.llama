@@ -1,0 +1,6 @@
+FROM ollama/ollama:latest
+
+COPY init-llama.sh /init-llama.sh
+RUN chmod +x /init-llama.sh
+
+ENTRYPOINT ["/bin/sh", "/init-llama.sh"]
